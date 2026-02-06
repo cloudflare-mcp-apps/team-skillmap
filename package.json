@@ -41,6 +41,7 @@
     "@modelcontextprotocol/sdk": "^1.26.0",
     "@workos-inc/node": "^7.77.0",
     "agents": "^0.2.30",
+    "ai": "^6.0.0",
     "hono": "^4.10.4",
     "zod": "^4.1.13"
   },
