@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.wrangler/
+.dev.vars
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Unused skeleton files
+src/api-client.ts
+src/schemas/
+src/shared/constants.ts
+src/optional/
+web/components/
+web/lib/
+web/styles/
+web/widgets/widget.tsx
+web/tsconfig.json
+tailwind.config.js
+postcss.config.js
+.skeleton-ignore
+scripts/

@@ -1,0 +1,57 @@
+{
+  "name": "team-skillmap-mcp",
+  "version": "1.0.0",
+  "description": "Team Skill Map MCP App - Interactive force-directed graph for team competency visualization",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wtyczki-ai/team-skillmap.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cloudflare-workers",
+    "mcp-apps",
+    "sep-1865"
+  ],
+  "overrides": {
+    "iron-session": {
+      "cookie": "^0.7.0"
+    }
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:widget": "cross-env INPUT=widgets/widget.html vite build --watch",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:widget\"",
+    "build:widget": "cross-env INPUT=widgets/widget.html vite build",
+    "build:widgets": "npm run build:widget",
+    "watch": "cross-env INPUT=widgets/widget.html vite build --watch",
+    "watch:widgets": "npm run watch",
+    "deploy": "npm run build:widgets && wrangler deploy",
+    "type-check": "tsc --noEmit",
+    "pre-commit": "npm run type-check && npm run build:widgets",
+    "verify-all": "npm run pre-commit",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.1.0",
+    "@modelcontextprotocol/ext-apps": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@workos-inc/node": "^7.77.0",
+    "agents": "^0.2.30",
+    "hono": "^4.10.4",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "force-graph": "^1.49.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.6",
+    "vite-plugin-singlefile": "^2.0.3",
+    "wrangler": "^4.45.3"
+  }
+}

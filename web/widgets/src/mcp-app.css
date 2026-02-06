@@ -1,0 +1,240 @@
+:root {
+  --node-person: #3b82f6;
+  --node-critical: #ef4444;
+  --node-low: #f59e0b;
+  --node-safe: #22c55e;
+  --link-color: #94a3b8;
+  --bg: #ffffff;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --popup-bg: #ffffff;
+  --popup-border: #e2e8f0;
+  --insight-bg: #f8fafc;
+  --control-bg: #f1f5f9;
+  --control-border: #cbd5e1;
+  --badge-critical-bg: #fef2f2;
+  --badge-critical-text: #dc2626;
+  --badge-warning-bg: #fffbeb;
+  --badge-warning-text: #d97706;
+  --badge-safe-bg: #f0fdf4;
+  --badge-safe-text: #16a34a;
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f1f5f9;
+  --btn-secondary-text: #475569;
+}
+
+.dark {
+  --node-person: #60a5fa;
+  --node-critical: #f87171;
+  --node-low: #fbbf24;
+  --node-safe: #4ade80;
+  --link-color: #64748b;
+  --bg: #0f172a;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --popup-bg: #1e293b;
+  --popup-border: #334155;
+  --insight-bg: #1e293b;
+  --control-bg: #1e293b;
+  --control-border: #475569;
+  --badge-critical-bg: #450a0a;
+  --badge-critical-text: #fca5a5;
+  --badge-warning-bg: #451a03;
+  --badge-warning-text: #fcd34d;
+  --badge-safe-bg: #052e16;
+  --badge-safe-text: #86efac;
+  --btn-primary-bg: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #334155;
+  --btn-secondary-text: #e2e8f0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 600px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 14px;
+}
+
+#graph {
+  width: 100%;
+  height: 500px;
+  position: relative;
+}
+
+#graph canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#insights {
+  height: 100px;
+  background: var(--insight-bg);
+  border-top: 1px solid var(--popup-border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.insight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.insight-badge.critical {
+  background: var(--badge-critical-bg);
+  color: var(--badge-critical-text);
+}
+
+.insight-badge.warning {
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+}
+
+.insight-badge.safe {
+  background: var(--badge-safe-bg);
+  color: var(--badge-safe-text);
+}
+
+.insight-recommendation {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 200px;
+}
+
+#popup {
+  position: fixed;
+  background: var(--popup-bg);
+  border: 1px solid var(--popup-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 300px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.popup-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.popup-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.popup-error {
+  font-size: 12px;
+  color: var(--badge-critical-text);
+  margin-bottom: 8px;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.popup-actions button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+#highlight-btn {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+#analyze-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+#analyze-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 50;
+}
+
+#controls button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#controls button:hover {
+  background: var(--popup-border);
+}
+
+#reset-graph {
+  width: auto !important;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
