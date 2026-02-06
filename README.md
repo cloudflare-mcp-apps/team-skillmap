@@ -1,232 +1,48 @@
-# {{SERVER_NAME}} MCP Server
+# Team Skill Map MCP
 
-MCP Apps server with SEP-1865 interactive widget support, dual authentication (OAuth + API Key), and Cloudflare Workers deployment.
+Force-directed graph visualization of team competencies with bus factor analysis, skill clustering, and interactive node exploration.
 
-## Quick Start
+## Features
 
-### 1. Replace Placeholders
+- **Interactive Graph** - Force-directed visualization with person and skill nodes
+- **Bus Factor Analysis** - Identifies critical skills held by only one person
+- **Skill Clustering** - Groups related competencies and team members
+- **Risk Scoring** - Color-coded nodes (critical/low/adequate/strong)
+- **Drill-down Analysis** - Click any skill node for detailed coverage data
 
-Search and replace these placeholders in all files:
+## Tools
 
-| Placeholder | Description | Example |
-|-------------|-------------|---------|
-| `{{SERVER_NAME}}` | Human-readable name | "Currency Converter" |
-| `{{SERVER_ID}}` | kebab-case identifier | "currency-converter" |
-| `{{McpAgentClassName}}` | PascalCase class name | "CurrencyConverterMcp" |
-| `{{SERVER_DESCRIPTION}}` | Brief description | "Convert currencies using real-time exchange rates" |
-| `{{WIDGET_TITLE}}` | Widget HTML title | "Currency Converter Widget" |
-| `{{GITHUB_ORG}}` | GitHub organization | "your-org" |
+| Tool | Visibility | Description |
+|------|-----------|-------------|
+| `map_team` | Model + App | Builds skill graph from team member data |
+| `analyze_skill` | App only | Deep-dive into a specific skill's coverage |
 
-### 2. Update wrangler.jsonc
+## Prompts
 
-1. Replace `{{SERVER_ID}}` with your server ID
-2. Replace `{{McpAgentClassName}}` with your class name
-3. Update the custom domain pattern
+| Prompt | Description |
+|--------|-------------|
+| `analyze-team-skills` | Interactive skill map creation workflow |
+| `check-bus-factor` | Quick bus factor risk identification |
 
-### 3. Install and Build
+## Architecture
 
-```bash
-npm install
-npm run build:widgets
-```
+- **Runtime:** Cloudflare Workers + Durable Objects (McpAgent)
+- **Widget:** Vanilla TypeScript + force-graph + d3-force-3d
+- **Auth:** Dual - OAuth 2.1 (WorkOS AuthKit) + API Key
+- **Protocol:** MCP Apps (SEP-1865) with `ui://` resources
 
-### 4. Set Secrets
-
-```bash
-wrangler secret put WORKOS_CLIENT_ID
-wrangler secret put WORKOS_API_KEY
-```
-
-### 5. Deploy
-
-Deployment is automatic via Cloudflare Workers Builds when you push to GitHub.
-
-For manual deployment (not recommended):
-```bash
-npm run deploy
-```
-
-## Project Structure
-
-```
-src/
-  index.ts              # Entry point with dual auth routing
-  server.ts             # McpAgent class (OAuth path)
-  api-key-handler.ts    # API key authentication with LRU cache
-  types.ts              # Environment bindings
-  server-instructions.ts # LLM system prompt instructions
-
-  auth/
-    authkit-handler.ts  # WorkOS OAuth with PKCE
-    apiKeys.ts          # API key validation
-    auth-utils.ts       # User lookup, HTML pages
-    props.ts            # Auth context type
-    session-types.ts    # Session interfaces
-
-  helpers/
-    assets.ts           # loadHtml() for widget loading
-
-  resources/
-    ui-resources.ts     # SEP-1865 UI resource definitions
-
-  tools/
-    descriptions.ts     # Tool metadata (4-part pattern)
-
-  shared/
-    logger.ts           # Structured logging
-
-  optional/             # Advanced features (delete if not needed)
-
-web/
-  widgets/
-    widget.html         # Widget entry point
-    widget.tsx          # React widget component
-  components/           # shadcn/ui components
-  lib/                  # Utilities (cn, types)
-  styles/               # Tailwind CSS
-  dist/widgets/         # Built output (gitignored)
-```
-
-## Adding New Tools
-
-When adding a tool, update these locations:
-
-### 1. Tool Metadata (`src/tools/descriptions.ts`)
-```typescript
-"your-tool": {
-  title: "Your Tool",
-  description: {
-    part1_purpose: "What it does...",
-    part2_returns: "Returns X, Y, Z...",
-    part3_useCase: "Use when...",
-    part4_constraints: "Note: limitations..."
-  },
-  examples: [...]
-}
-```
-
-### 2. Server Registration (`src/server.ts`)
-```typescript
-registerAppTool(
-  this.server,
-  "your-tool",
-  {
-    title: TOOL_METADATA["your-tool"].title,
-    description: getToolDescription("your-tool"),
-    inputSchema: { /* Zod schema */ },
-    _meta: { [RESOURCE_URI_META_KEY]: widgetResource.uri }
-  },
-  async (args) => { /* implementation */ }
-);
-```
-
-### 3. API Key Handler (`src/api-key-handler.ts`)
-Duplicate the tool registration for API key authentication path.
-
-## SEP-1865 MCP Apps Pattern
-
-This skeleton uses the Two-Part Registration pattern:
-
-1. **PART 1: Register Resource** - UI HTML template from Assets
-2. **PART 2: Register Tool** - Links to resource via `_meta[RESOURCE_URI_META_KEY]`
-
-Data flows:
-```
-Tool Result -> structuredContent -> postMessage -> Widget State
-```
-
-## Authentication
-
-### OAuth 2.1 (OAuth-capable clients)
-- Flow: `/authorize` -> WorkOS AuthKit -> `/callback` -> Tools
-- PKCE support (RFC 7636)
-- Centralized login at panel.wtyczki.ai
-- Example clients: Claude Desktop
-
-### API Key (Non-OAuth clients)
-- Header: `Authorization: Bearer wtyk_xxxxx`
-- Keys generated via panel.wtyczki.ai
-- LRU cache prevents memory leaks
-- Example clients: AnythingLLM, Cursor
-
-## Widget Development
-
-### Key Concepts
-
-- React 18 with `useApp()` hook from `@modelcontextprotocol/ext-apps/react`
-- Tailwind CSS with automatic dark mode (via host context)
-- Fixed 600px height container (mandatory for MCP Apps)
-- viteSingleFile inlines all JS/CSS into single HTML
-
-### Development
+## Development
 
 ```bash
-# Build widget
-npm run build:widgets
-
-# Watch mode
-npm run dev:widget
-
-# Full dev (server + widget watch)
-npm run dev:full
+npm install --legacy-peer-deps
+npm run build:widgets   # Build widget HTML
+npm run verify-all      # TypeScript check + widget build
 ```
 
-### Widget Lifecycle
+## Deployment
 
-```typescript
-const { app } = useApp({
-  onAppCreated: (app) => {
-    app.ontoolinput = (params) => { /* tool called */ };
-    app.ontoolresult = (result) => { /* display result */ };
-    app.onhostcontextchanged = (ctx) => { /* theme change */ };
-    app.onteardown = async () => { /* cleanup */ };
-  }
-});
-```
+Automatic via Cloudflare Workers Builds on push to `main`.
 
-## Configuration Files
+## License
 
-| File | Purpose |
-|------|---------|
-| `wrangler.jsonc` | Cloudflare Workers config (bindings, routes) |
-| `vite.config.ts` | Widget build config |
-| `package.json` | Dependencies and scripts |
-| `tsconfig.json` | TypeScript config (server) |
-| `web/tsconfig.json` | TypeScript config (widget) |
-
-## Environment Variables
-
-Set via `wrangler secret put`:
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `WORKOS_CLIENT_ID` | Yes | WorkOS client ID |
-| `WORKOS_API_KEY` | Yes | WorkOS API key (starts with sk_) |
-| `AI_GATEWAY_TOKEN` | No | AI Gateway token (if using Workers AI) |
-
-## Common Issues
-
-### Widget not loading
-1. Check `npm run build:widgets` completed successfully
-2. Verify `web/dist/widgets/widget.html` exists
-3. Check ASSETS binding in wrangler.jsonc
-
-### Authentication failures
-1. Verify WORKOS_CLIENT_ID and WORKOS_API_KEY secrets are set
-2. Check USER_SESSIONS KV namespace is configured
-3. Ensure custom domain is set up in Cloudflare
-
-### Tool not appearing
-1. Check tool is registered in BOTH server.ts AND api-key-handler.ts
-2. Verify tool name matches exactly in all locations
-3. Check handleToolsList() includes the tool schema
-
-## Production Checklist
-
-- [ ] All `{{PLACEHOLDER}}` values replaced
-- [ ] wrangler.jsonc configured with correct IDs
-- [ ] Secrets set via `wrangler secret put`
-- [ ] Custom domain configured in Cloudflare
-- [ ] GitHub repository connected to Cloudflare Workers Builds
-- [ ] Widget builds successfully (`npm run build:widgets`)
-- [ ] Type checking passes (`npm run type-check`)
+Private - All rights reserved.
