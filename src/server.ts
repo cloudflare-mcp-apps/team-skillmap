@@ -9,6 +9,7 @@ import { SERVER_INSTRUCTIONS } from "./server-instructions";
 import { TOOL_METADATA, getToolDescription } from "./tools/descriptions";
 import { MapTeamInput, type MapTeamParams, computeTeamGraph } from "./tools/map-team";
 import { AnalyzeSkillInput, type AnalyzeSkillParams, analyzeSkill } from "./tools/analyze-skill";
+import { MapTeamOutputSchema, AnalyzeSkillOutputSchema } from "./schemas/outputs";
 import { logger } from "./shared/logger";
 
 export class TeamSkillmap extends McpAgent<Env, unknown, Props> {
@@ -65,6 +66,7 @@ export class TeamSkillmap extends McpAgent<Env, unknown, Props> {
         title: TOOL_METADATA["map_team"].title,
         description: getToolDescription("map_team"),
         inputSchema: MapTeamInput,
+        outputSchema: MapTeamOutputSchema,
         annotations: {
           readOnlyHint: true,
           destructiveHint: false,
@@ -92,10 +94,14 @@ export class TeamSkillmap extends McpAgent<Env, unknown, Props> {
             duration_ms: 0,
           });
 
+          const nextSteps = result.insights.busFactorRisks.length > 0
+            ? `Click on red skill nodes in the graph to see detailed coverage. ${result.insights.recommendations[0]}`
+            : "Explore skill clusters by clicking on nodes. Your team has good coverage!";
+
           return {
             content: [{
               type: "text" as const,
-              text: result.summary,
+              text: `${result.summary}\n\nNext steps: ${nextSteps}`,
             }],
             structuredContent: result as unknown as Record<string, unknown>,
             _meta: {
@@ -127,6 +133,7 @@ export class TeamSkillmap extends McpAgent<Env, unknown, Props> {
         title: TOOL_METADATA["analyze_skill"].title,
         description: getToolDescription("analyze_skill"),
         inputSchema: AnalyzeSkillInput,
+        outputSchema: AnalyzeSkillOutputSchema,
         _meta: {
           ui: {
             visibility: ["app"],
